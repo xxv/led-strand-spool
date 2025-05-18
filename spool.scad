@@ -1,20 +1,21 @@
-use <../BOSL/threading.scad>
-use <../BOSL/transforms.scad>
-include <../BOSL/constants.scad>
+include <BOSL/constants.scad>
+use <BOSL/threading.scad>
+use <BOSL/transforms.scad>
 
-id = 70;
-od = 190;
-height = 40;
-wall_thickness = 4;
+id = 90;
+od = 180;
+height = 30;
+wall_thickness = 3;
 thread_overlap = 10;
-nut_od = id + 15;
-thread_od = id + 10;
+thread_od = id + 5;
+nut_od = thread_od + 5;
 led_hole_d = 6;
 opening_hole_d = 25;
 
-thread_depth = 3;
+thread_depth = 1;
 thread_angle = 30;
 thread_pitch = 10;
+thread_slop = 0.5;
 
 $fs=0.5;
 $fa=0.5;
@@ -22,38 +23,39 @@ $fa=0.5;
 *side();
 *preview_splode();
 preview();
+*cutaway();
 
 module preview() {
     zrot(180)
-    color("red")
-    lower();
+      color("red")
+        lower();
 
-    up(68)
-    xrot(180)
-    upper();
+    up(height + wall_thickness * 2)
+      xrot(180)
+        upper();
 }
 
 
 module preview_splode() {
     zrot(180)
-    color("red")
-    lower();
+      color("red")
+        lower();
 
-    up(150)
-    xrot(180)
-    upper();
+    up((height + wall_thickness * 2) * 2)
+      xrot(180)
+        upper();
 }
 
 module cutaway() {
   intersection() {
     union() {
     zrot(180)
-    color("red")
-    lower();
+      color("red")
+        lower();
 
-    up(78)
-    xrot(180)
-    upper();
+    up(height + wall_thickness * 2)
+      xrot(180)
+        upper();
     }
     cube([200, 200, 200]);
   }
@@ -65,13 +67,13 @@ module side() {
   difference() {
     cylinder(d=od, h=wall_thickness);
     down(smidge) {
-      for (rot = [0: 15: 360]) {
+      for (rot = [0: 30: 360]) {
         zrot(rot)
           left((nut_od+ led_hole_d * 2)/2)
             cylinder(d=led_hole_d, h=wall_thickness + smidge * 2);
         }
 
-      opening_h = (od - nut_od)/2 - 18;
+      opening_h = (od - nut_od)/2 - 16;
       opening_w_t = 40;
       opening_w_b = 22;
       for (rot = [0: 30: 360]) {
@@ -85,7 +87,7 @@ module side() {
         }
       }
       down(wall_thickness/2)
-        cylinder(d1=id + 10, d2=id, h=wall_thickness + smidge);
+        cylinder(d1=id + 5, d2=id, h=wall_thickness + smidge);
     }
 }
 
@@ -109,7 +111,7 @@ module upper() {
     union() {
       up(wall_thickness) {
           intersection() {
-            trapezoidal_threaded_nut(od=nut_od, id=thread_od, h=height - thread_overlap, pitch=thread_pitch, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
+            trapezoidal_threaded_nut(od=nut_od, id=thread_od, h=height - thread_overlap, pitch=thread_pitch, slop=thread_slop, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
             cylinder(d=nut_od, h=height);
           }
       }
