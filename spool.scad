@@ -2,15 +2,33 @@ include <BOSL/constants.scad>
 use <BOSL/threading.scad>
 use <BOSL/transforms.scad>
 
+// Spool inner diameter (mm)
 id = 90;
+// Spool outer diameter (mm)
 od = 180;
-height = 30;
+// Space between the two sides (mm)
+width = 30;
+// Thickness of the sides (mm)
 wall_thickness = 3;
-thread_overlap = 10;
+
+// LED hole diameter (mm)
+led_hole_d = 6;
+// The arc size of the opening in the sides (degrees)
+opening_arc = 30;
+
+// Blank area before the threading starts (mm)
+thread_margin = 10;
+
+/* [Hidden] */
 thread_od = id + 5;
 nut_od = thread_od + 5;
-led_hole_d = 6;
-opening_hole_d = 25;
+
+opening_top = od/2 - 4;
+opening_bottom = nut_od/2 + led_hole_d * 2;
+opening_h = opening_top - opening_bottom;
+opening_rounding = min(10, opening_h / 4);
+opening_w_t = 2 * opening_top * abs(sin((opening_arc - 2)/2));
+opening_w_b = 2 * opening_bottom * abs(sin((opening_arc - 4)/2));
 
 thread_depth = 1;
 thread_angle = 30;
@@ -30,7 +48,7 @@ module preview() {
       color("red")
         lower();
 
-    up(height + wall_thickness * 2)
+    up(width + wall_thickness * 2)
       xrot(180)
         upper();
 }
@@ -41,7 +59,7 @@ module preview_splode() {
       color("red")
         lower();
 
-    up((height + wall_thickness * 2) * 2)
+    up((width + wall_thickness * 2) * 2)
       xrot(180)
         upper();
 }
@@ -53,7 +71,7 @@ module cutaway() {
       color("red")
         lower();
 
-    up(height + wall_thickness * 2)
+    up(width + wall_thickness * 2)
       xrot(180)
         upper();
     }
@@ -67,25 +85,23 @@ module side() {
   difference() {
     cylinder(d=od, h=wall_thickness);
     down(smidge) {
-      for (rot = [0: 30: 360]) {
+      for (rot = [0: opening_arc : 360]) {
         zrot(rot)
-          left((nut_od+ led_hole_d * 2)/2)
+          left((nut_od + led_hole_d * 2)/2)
             cylinder(d=led_hole_d, h=wall_thickness + smidge * 2);
         }
 
-      opening_h = (od - nut_od)/2 - 16;
-      opening_w_t = 40;
-      opening_w_b = 22;
-      for (rot = [0: 30: 360]) {
+      for (rot = [0: opening_arc : 360]) {
         zrot(rot)
           left(nut_od/2 + led_hole_d * 2)
             linear_extrude(height=wall_thickness + smidge * 2)
               zrot(90)
-                round2d(10) {
+                round2d(opening_rounding) {
                   polygon([[-opening_w_b/2, 0], [-opening_w_t/2, opening_h], [opening_w_t/2, opening_h], [opening_w_b/2, 0]]);
                 }
         }
       }
+      // bevel the inner edge for comfort
       down(wall_thickness/2)
         cylinder(d1=id + 5, d2=id, h=wall_thickness + smidge);
     }
@@ -95,14 +111,14 @@ module lower() {
   difference() {
     union() {
       up(wall_thickness) {
-        up(thread_overlap)
-          trapezoidal_threaded_rod(d=thread_od, l=height - thread_overlap, pitch=thread_pitch, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
-        cylinder(d=nut_od, h=thread_overlap);
+        up(thread_margin)
+          trapezoidal_threaded_rod(d=thread_od, l=width - thread_margin, pitch=thread_pitch, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
+        cylinder(d=nut_od, h=thread_margin);
       }
       side();
     }
     translate([0, 0, -smidge])
-      cylinder(d=id, h=height + wall_thickness * 2);
+      cylinder(d=id, h=width + wall_thickness * 2);
     }
 }
 
@@ -111,13 +127,13 @@ module upper() {
     union() {
       up(wall_thickness) {
           intersection() {
-            trapezoidal_threaded_nut(od=nut_od, id=thread_od, h=height - thread_overlap, pitch=thread_pitch, slop=thread_slop, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
-            cylinder(d=nut_od, h=height);
+            trapezoidal_threaded_nut(od=nut_od, id=thread_od, h=width - thread_margin, pitch=thread_pitch, slop=thread_slop, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
+            cylinder(d=nut_od, h=width);
           }
       }
       side();
     }
     translate([0, 0, -smidge])
-      cylinder(d=id, h=height + wall_thickness * 2);
+      cylinder(d=id, h=width + wall_thickness * 2);
     }
 }
