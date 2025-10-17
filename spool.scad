@@ -2,6 +2,7 @@ include <BOSL/constants.scad>
 use <BOSL/threading.scad>
 use <BOSL/transforms.scad>
 
+
 // Spool inner diameter (mm)
 id = 90;
 // Spool outer diameter (mm)
@@ -10,7 +11,6 @@ od = 180;
 width = 30;
 // Thickness of the sides (mm)
 wall_thickness = 3;
-
 // LED hole diameter (mm)
 led_hole_d = 6;
 // The arc size of the opening in the sides (degrees)
@@ -20,15 +20,6 @@ opening_arc = 30;
 thread_margin = 10;
 
 /* [Hidden] */
-thread_od = id + 5;
-nut_od = thread_od + 5;
-
-opening_top = od/2 - 4;
-opening_bottom = nut_od/2 + led_hole_d * 2;
-opening_h = opening_top - opening_bottom;
-opening_rounding = min(10, opening_h / 4);
-opening_w_t = 2 * opening_top * abs(sin((opening_arc - 2)/2));
-opening_w_b = 2 * opening_bottom * abs(sin((opening_arc - 4)/2));
 
 thread_depth = 1;
 thread_angle = 30;
@@ -46,22 +37,22 @@ preview();
 module preview() {
     zrot(180)
       color("red")
-        lower();
+        a_side();
 
     up(width + wall_thickness * 2)
       xrot(180)
-        upper();
+        b_side();
 }
 
 
 module preview_splode() {
     zrot(180)
       color("red")
-        lower();
+        a_side();
 
     up((width + wall_thickness * 2) * 2)
       xrot(180)
-        upper();
+        b_side();
 }
 
 module cutaway() {
@@ -69,11 +60,11 @@ module cutaway() {
     union() {
     zrot(180)
       color("red")
-        lower();
+        a_side();
 
     up(width + wall_thickness * 2)
       xrot(180)
-        upper();
+        b_side();
     }
     cube([200, 200, 200]);
   }
@@ -81,7 +72,54 @@ module cutaway() {
 
 smidge = 0.01;
 
+module a_side(id=id, od=od, width=width) {
+  thread_od = id + 5;
+  nut_od = thread_od + 5;
+
+  difference() {
+    union() {
+      up(wall_thickness) {
+        up(thread_margin)
+          trapezoidal_threaded_rod(d=thread_od, l=width - thread_margin, pitch=thread_pitch, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
+        cylinder(d=nut_od, h=thread_margin);
+      }
+      side();
+    }
+    translate([0, 0, -smidge])
+      cylinder(d=id, h=width + wall_thickness * 2);
+    }
+}
+
+module b_side() {
+  thread_od = id + 5;
+  nut_od = thread_od + 5;
+
+  difference() {
+    union() {
+      up(wall_thickness) {
+          intersection() {
+            trapezoidal_threaded_nut(od=nut_od, id=thread_od, h=width - thread_margin, pitch=thread_pitch, slop=thread_slop, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
+            cylinder(d=nut_od, h=width);
+          }
+      }
+      side();
+    }
+    translate([0, 0, -smidge])
+      cylinder(d=id, h=width + wall_thickness * 2);
+    }
+}
+
 module side() {
+  thread_od = id + 5;
+  nut_od = thread_od + 5;
+
+  opening_top = od/2 - 4;
+  opening_bottom = nut_od/2 + led_hole_d * 2;
+  opening_h = opening_top - opening_bottom;
+  opening_rounding = min(10, opening_h / 4);
+  opening_w_t = 2 * opening_top * abs(sin((opening_arc - 2)/2));
+  opening_w_b = 2 * opening_bottom * abs(sin((opening_arc - 4)/2));
+
   difference() {
     cylinder(d=od, h=wall_thickness);
     down(smidge) {
@@ -91,6 +129,7 @@ module side() {
             cylinder(d=led_hole_d, h=wall_thickness + smidge * 2);
         }
 
+      if (opening_h > 5)
       for (rot = [0: opening_arc : 360]) {
         zrot(rot)
           left(nut_od/2 + led_hole_d * 2)
@@ -107,33 +146,3 @@ module side() {
     }
 }
 
-module lower() {
-  difference() {
-    union() {
-      up(wall_thickness) {
-        up(thread_margin)
-          trapezoidal_threaded_rod(d=thread_od, l=width - thread_margin, pitch=thread_pitch, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
-        cylinder(d=nut_od, h=thread_margin);
-      }
-      side();
-    }
-    translate([0, 0, -smidge])
-      cylinder(d=id, h=width + wall_thickness * 2);
-    }
-}
-
-module upper() {
-  difference() {
-    union() {
-      up(wall_thickness) {
-          intersection() {
-            trapezoidal_threaded_nut(od=nut_od, id=thread_od, h=width - thread_margin, pitch=thread_pitch, slop=thread_slop, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
-            cylinder(d=nut_od, h=width);
-          }
-      }
-      side();
-    }
-    translate([0, 0, -smidge])
-      cylinder(d=id, h=width + wall_thickness * 2);
-    }
-}
