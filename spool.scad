@@ -1,14 +1,24 @@
+// TODO break this out parametrically so that there can be spool_10m.scad and similar
+// id 70, od 120 width 20 is 10m
 include <BOSL/constants.scad>
 use <BOSL/threading.scad>
 use <BOSL/transforms.scad>
 
-
 // Spool inner diameter (mm)
 id = 90;
+// 10m id = 70;
+// 40m id = 90;
+
 // Spool outer diameter (mm)
 od = 180;
+// 10m od = 140;
+// 40m od = 180;
+
 // Space between the two sides (mm)
 width = 30;
+// 10m width = 20;
+// 40m width = 30;
+
 // Thickness of the sides (mm)
 wall_thickness = 3;
 // LED hole diameter (mm)
@@ -17,7 +27,7 @@ led_hole_d = 6;
 opening_arc = 30;
 
 // Blank area before the threading starts (mm)
-thread_margin = 10;
+thread_margin = 5;
 
 /* [Hidden] */
 
