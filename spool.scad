@@ -44,14 +44,24 @@ $fa=0.5;
 preview();
 *cutaway();
 
-module preview() {
+module preview_ch(id=id, od=od, width=width) {
     zrot(180)
       color("red")
-        a_side();
+        children(0);
 
     up(width + wall_thickness * 2)
       xrot(180)
-        b_side();
+        children(1);
+}
+
+module preview(id=id, od=od, width=width) {
+    zrot(180)
+      color("red")
+        a_side(id=id, od=od, width=width);
+
+    up(width + wall_thickness * 2)
+      xrot(180)
+        b_side(id=id, od=od, width=width);
 }
 
 
@@ -82,7 +92,7 @@ module cutaway() {
 
 smidge = 0.01;
 
-module a_side(id=id, od=od, width=width) {
+module a_side(id=id, od=od, width=width, side_holes=true) {
   thread_od = id + 5;
   nut_od = thread_od + 5;
 
@@ -93,14 +103,14 @@ module a_side(id=id, od=od, width=width) {
           trapezoidal_threaded_rod(d=thread_od, l=width - thread_margin, pitch=thread_pitch, thread_depth=thread_depth, thread_angle=thread_angle, align=V_TOP);
         cylinder(d=nut_od, h=thread_margin);
       }
-      side();
+      side(id=id, od=od, side_holes=side_holes);
     }
     translate([0, 0, -smidge])
       cylinder(d=id, h=width + wall_thickness * 2);
     }
 }
 
-module b_side() {
+module b_side(id=id, od=od, width=width, side_holes=true) {
   thread_od = id + 5;
   nut_od = thread_od + 5;
 
@@ -112,14 +122,14 @@ module b_side() {
             cylinder(d=nut_od, h=width);
           }
       }
-      side();
+      side(id=id, od=od, side_holes=side_holes);
     }
     translate([0, 0, -smidge])
       cylinder(d=id, h=width + wall_thickness * 2);
     }
 }
 
-module side() {
+module side(id=id, od=od, side_holes=true) {
   thread_od = id + 5;
   nut_od = thread_od + 5;
 
@@ -132,6 +142,7 @@ module side() {
 
   difference() {
     cylinder(d=od, h=wall_thickness);
+    if (side_holes)
     down(smidge) {
       for (rot = [0: opening_arc : 360]) {
         zrot(rot)
