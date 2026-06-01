@@ -43,14 +43,35 @@ module a_side_battery() {
             cylinder(d=id + 3, h=width + 3);
             cylinder(d=id, h=width + wall_thickness*2);
         }
-        for (y = [-id/2 + cutout_in, id/2 - cutout_in])
-            translate([0, y, -smidge])
-                cylinder(d=cutout_dia, h=width * 2);
 
+        // cutouts to save material
+        cutout_wall = 3;
+        intersection() {
+            translate([0, 0, -1])
+                cylinder(d=id , h=width + 10);
+            
+            union() {
+                translate([-battery_cutout.x/2, battery_box.z/2 + cutout_wall, 0])
+                    down(smidge)
+                        cube([battery_cutout.x, id, width + 10]);
+
+                yflip()
+                    translate([-battery_cutout.x/2, battery_box.z/2 + cutout_wall, 0])
+                        down(smidge)
+                            cube([battery_cutout.x - 25, id, width + 10]);
+            }
+        }
+
+        // holes for tucking the fairy lights into
         for (rot = [0 : 90 : 360])
-            rotate([0, 0, rot])
-            translate([0, id/2 + 4, -smidge])
+            rotate([0, 0, rot + 45])
+            translate([0, od/2 - 4, -smidge])
                 cylinder(d=5, h=8 + smidge*2);
+        //wire cutout
+        wire_cutout = [6, 2, width * 2];
+        translate([-id/2 - wire_cutout.x + 1, 4, 0])
+            up(wall_thickness)
+                cube(wire_cutout);
         intersection() {
             difference() {
                 union() {
@@ -75,7 +96,7 @@ module a_side_battery() {
                     cube([left_bump.x, left_bump.y, width*2]);
             }
             translate([0, 0, -1])
-            cylinder(d=id, h=width + 10);
+                cylinder(d=id, h=width + 10);
         }
     }
 }
