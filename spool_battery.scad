@@ -1,25 +1,30 @@
 use <BOSL/transforms.scad>
 use <spool.scad>
 
-battery_box = [53, 80, 22.5];
+battery_box = [49, 80, 22.5];
 
-id = 69; // nice
-od = id + 30;
-width = 20;
+id = 66;
+od = id + 25;
+width = 22;
+cutout_dia = 18;
+cutout_in = 11;
+
+wall_thickness = 2;
 
 $fs=0.5;
 $fa=0.5;
 
 smidge = 0.01;
 
-a_side_battery();
+*a_side_battery();
 *b_side_battery();
+mockup();
 
 
 module mockup() {
-    translate([0, width/2 + 3 /* wall thickness? */, 0])
+    translate([0, width/2 + wall_thickness, 0])
         rotate([90, 0, 0])
-            preview_ch(id = id, od=od, width=width) {
+            preview_ch(id = id, od=od, wall_thickness, width=width) {
                 a_side_battery();
                 b_side_battery();
             }
@@ -27,21 +32,20 @@ module mockup() {
 }
 
 module b_side_battery() {
-    b_side(id=id, od=od, width=width, side_holes=false);
+    b_side(id=id, od=od, width=width, wall_thickness=wall_thickness, side_holes=false);
 }
 
 module a_side_battery() {
     battery_cutout = battery_box + [18, 0, 1];
     difference() {
         union() {
-            a_side(id=id, od=od, width=width, side_holes=false);
+            a_side(id=id, od=od, width=width, wall_thickness=wall_thickness, side_holes=false);
             cylinder(d=id + 3, h=width + 3);
-            cylinder(d=id, h=width + 6);
+            cylinder(d=id, h=width + wall_thickness*2);
         }
-        cutout_in = 11;
         for (y = [-id/2 + cutout_in, id/2 - cutout_in])
             translate([0, y, -smidge])
-                cylinder(d=20, h=width * 2);
+                cylinder(d=cutout_dia, h=width * 2);
 
         for (rot = [0 : 90 : 360])
             rotate([0, 0, rot])
@@ -54,14 +58,19 @@ module a_side_battery() {
                         translate(-battery_cutout/2)
                             cube(battery_cutout);
 
-                    translate([13, -18, 0])
+                    // cutout for latch
+                    translate([32, -11, 0])
                         rotate([0, 0, -45])
                             down(1)
+                                rotate([0, 0, 180])
                                 cube([10, 20, width * 2]);
                 }
-                translate([battery_box.x/2, -battery_cutout.z/2 + 10, 0])
-                    cube([10, battery_cutout.z - 10, width*2]);
-                left_bump = [7, 5];
+                // right bump
+                right_bump = [8, 8];
+                translate([battery_cutout.x/2 - right_bump.x, battery_cutout.z/2 - right_bump.y, 0])
+                    cube([right_bump.x, right_bump.y, width*2]);
+                // bump 
+                left_bump = [8, 5];
                 translate([-battery_cutout.x/2, battery_cutout.z/2 - left_bump.y, 0])
                     cube([left_bump.x, left_bump.y, width*2]);
             }
@@ -76,8 +85,8 @@ module battery_box_mockup() {
     hinge = [10, 24, 14];
     translate(-battery_box/2)
     cube(battery_box);
-    latch_actuate = 0;
-    //latch_actuate = 180 + 45;
+    //latch_actuate = 0;
+    latch_actuate = 180 + 45;
 
     // Latch
     latch = [6, 24, 7];
