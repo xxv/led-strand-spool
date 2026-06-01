@@ -23,12 +23,47 @@ mockup();
 
 module mockup() {
     translate([0, width/2 + wall_thickness, 0])
-        rotate([90, 0, 0])
+        rotate([90, 0, 0]) {
             preview_ch(id = id, od=od, wall_thickness, width=width) {
                 a_side_battery();
                 b_side_battery();
             }
+            !cover();
+        }
     battery_box_mockup();
+}
+
+module cover() {
+    cover_thickness = 1.5;
+    cover_width = width + 0.5 + wall_thickness * 4;
+    side_wall = 1;
+    lip = 1;
+
+    light_hole = 5;
+
+    difference() {
+        // outer perimeter
+        cylinder(d=od + cover_thickness * 2, h=cover_width);
+
+        // inner channel
+        up(side_wall)
+            cylinder(d=od, h=cover_width - side_wall*2);
+        *up(cover_width - side_wall - 1 - smidge)
+            cylinder(d=od - lip, h=0.5);
+        down(smidge)
+            cylinder(d=od - lip * 2, h=cover_width + smidge * 2);
+
+        // cut for opening
+        right(od/2 - lip * 2)
+            down(smidge)
+                cube([lip * 5, 1, cover_width + smidge * 2]);
+
+        // hole for lights
+        up(cover_width/2)
+            left(od/2 + cover_thickness)
+                yrot(90)
+                    cylinder(d1=light_hole, d2=light_hole*3, h=cover_thickness * 2 + 0.5);
+    }
 }
 
 module b_side_battery() {
