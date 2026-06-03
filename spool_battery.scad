@@ -37,29 +37,47 @@ module cover() {
     cover_thickness = 1.5;
     cover_width = width + 0.5 + wall_thickness * 4;
     side_wall = 1;
-    lip = 1;
+    lip = 5;
+    // shrink the diameter so it's springy when in its default state
+    od = od - 5;
 
     light_hole = 5;
 
+    angle_extra = 1.5;
+
+
     difference() {
         // outer perimeter
-        cylinder(d=od + cover_thickness * 2, h=cover_width);
-
-        // inner channel
-        up(side_wall)
-            cylinder(d=od, h=cover_width - side_wall*2);
-        *up(cover_width - side_wall - 1 - smidge)
-            cylinder(d=od - lip, h=0.5);
-        down(smidge)
-            cylinder(d=od - lip * 2, h=cover_width + smidge * 2);
+        union() {
+        rotate_extrude(360, 1)
+        zrot(90)
+        translate([0, od/2 + 0.5])
+        translate([0, cover_thickness])
+        mirror([0, 1])
+        polygon([
+            [0, 0],
+            [0, lip],
+            [side_wall, lip],
+            [side_wall + angle_extra, wall_thickness],
+            [cover_width + side_wall + angle_extra, wall_thickness],
+            [cover_width + side_wall + angle_extra *2 , lip],
+            [cover_width + side_wall + angle_extra *2 + side_wall , lip],
+            [cover_width + side_wall + angle_extra *2 + side_wall , 0],
+        ]);
+            for (rot=[0:30:360])
+                zrot(rot)
+                    translate([od/2, 0, 0])
+                        cylinder(h=cover_width + side_wall*2 + angle_extra*2, d=1, $fn=16);
+        }
+        *cylinder(d=od + cover_thickness * 2, h=cover_width);
 
         // cut for opening
         right(od/2 - lip * 2)
             down(smidge)
-                cube([lip * 5, 1, cover_width + smidge * 2]);
+                cube([lip * 5, 1, 100]);
 
         // hole for lights
-        up(cover_width/2)
+        #up(cover_width/2)
             left(od/2 + cover_thickness)
                 yrot(90)
                     cylinder(d1=light_hole, d2=light_hole*3, h=cover_thickness * 2 + 0.5);
