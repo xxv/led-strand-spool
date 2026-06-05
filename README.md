@@ -13,6 +13,15 @@ little.
 I use this with battery-powered WLED controllers to make fun decorative lights
 at outdoor events.
 
+### Fairy Light Battery Spool
+
+The `spool_battery*.scad` files are a spool that's designed to be used with
+standard fairy light packs (specifically the kind that takes 3x AA batteries).
+You can wind the fairy lights around the spool, keep it tidy with the cover, and
+easily wind/unwind without tangling by holding the assembly by the cover. The
+battery pack is removable while the lights are wound on the spool and it uses
+the battery latch to hold the pack in place.
+
 License
 =======
 This work is copyright 2025 Steve Pomeroy, licensed under [CC BY-SA 4.0][cc-by-sa]
