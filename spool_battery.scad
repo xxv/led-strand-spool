@@ -20,6 +20,10 @@ smidge = 0.01;
 *b_side_battery();
 mockup();
 
+*cutaway_ch(id=id, od=od, width=width, wall_thickness=wall_thickness) {
+    a_side_battery();
+    b_side_battery();
+}
 
 module mockup() {
     translate([0, width/2 + wall_thickness, 0])
@@ -28,7 +32,8 @@ module mockup() {
                 a_side_battery();
                 b_side_battery();
             }
-            !cover();
+            *translate([0, 0, -4])
+                cover();
         }
     battery_box_mockup();
 }
@@ -94,7 +99,7 @@ module a_side_battery() {
     difference() {
         union() {
             a_side(id=id, od=od, width=width, wall_thickness=wall_thickness, side_holes=false);
-            cylinder(d=id + 3, h=width + 3);
+            cylinder(d=id + 3, h=width);
             cylinder(d=id, h=width + wall_thickness*2);
         }
 

@@ -91,6 +91,21 @@ module cutaway() {
   }
 }
 
+module cutaway_ch(id=id, od=od, width=width, wall_thickness=wall_thickness) {
+  intersection() {
+    union() {
+    zrot(0)
+      color("red")
+        children(0);
+
+    up(width + wall_thickness * 2)
+      xrot(180)
+        children(1);
+    }
+    cube([200, 200, 200]);
+  }
+}
+
 smidge = 0.01;
 
 module a_side(id=id, od=od, width=width, wall_thickness=wall_thickness, side_holes=true) {
