@@ -93,6 +93,12 @@ module cover() {
 
 module b_side_battery() {
     b_side(id=id, od=od, width=width, wall_thickness=wall_thickness, side_holes=false);
+    // remove the chamfer as it's not needed and can cause print defects
+    difference() {
+        cylinder(d=id+3, h=wall_thickness);
+        down(smidge)
+        cylinder(d=id, h=wall_thickness+ smidge * 2);
+    }
 }
 
 module a_side_battery() {
