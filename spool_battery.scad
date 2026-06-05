@@ -9,6 +9,7 @@ width = 22;
 cutout_dia = 18;
 cutout_in = 11;
 
+// spool side walls
 wall_thickness = 2;
 
 $fs=0.5;
@@ -32,7 +33,7 @@ module mockup() {
                 a_side_battery();
                 b_side_battery();
             }
-            *translate([0, 0, -4])
+            translate([0, 0, -wall_thickness * 2])
                 cover();
         }
     battery_box_mockup();
@@ -40,7 +41,7 @@ module mockup() {
 
 module cover() {
     cover_thickness = 1.5;
-    cover_width = width + 1.5 + wall_thickness * 2;
+    cover_width = width + wall_thickness * 2;
     side_wall = 1;
     lip = 5;
     // shrink the diameter so it's springy when in its default state
@@ -50,7 +51,7 @@ module cover() {
 
     angle_extra = 3;
 
-    total_width = cover_width + side_wall + angle_extra *2 + side_wall;
+    total_width = cover_width + side_wall + angle_extra * 2 + side_wall;
 
     difference() {
         // outer perimeter
@@ -64,18 +65,18 @@ module cover() {
             [0, 0],
             [0, lip],
             [side_wall, lip],
-            [side_wall + angle_extra, wall_thickness],
-            [cover_width + side_wall + angle_extra, wall_thickness],
-            [cover_width + side_wall + angle_extra *2 , lip],
+            [side_wall + angle_extra, cover_thickness],
+            [cover_width + side_wall + angle_extra, cover_thickness],
+            [cover_width + side_wall + angle_extra * 2 , lip],
             [total_width, lip],
             [total_width, 0],
         ]);
+        // ribs to reduce friction
             for (rot=[0:30:360])
                 zrot(rot + 45)
-                    translate([od/2, 0, 0])
+                    translate([od/2 + 0.5, 0, 0])
                         cylinder(h=cover_width + side_wall*2 + angle_extra*2, d=1, $fn=16);
         }
-        *cylinder(d=od + cover_thickness * 2, h=cover_width);
 
         // cut for opening
         right(od/2 - lip * 2)
@@ -84,7 +85,7 @@ module cover() {
 
         // hole for lights
         #up(total_width/2)
-            left(od/2 + cover_thickness+ 1)
+            left(od/2 + cover_thickness + 1)
                 yrot(90)
                     cylinder(d1=light_hole, d2=light_hole*3, h=cover_thickness * 2 + 0.5);
     }
