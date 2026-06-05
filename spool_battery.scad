@@ -35,7 +35,7 @@ module mockup() {
 
 module cover() {
     cover_thickness = 1.5;
-    cover_width = width + 0.5 + wall_thickness * 4;
+    cover_width = width + 1.5 + wall_thickness * 2;
     side_wall = 1;
     lip = 5;
     // shrink the diameter so it's springy when in its default state
@@ -43,8 +43,9 @@ module cover() {
 
     light_hole = 5;
 
-    angle_extra = 1.5;
+    angle_extra = 3;
 
+    total_width = cover_width + side_wall + angle_extra *2 + side_wall;
 
     difference() {
         // outer perimeter
@@ -61,11 +62,11 @@ module cover() {
             [side_wall + angle_extra, wall_thickness],
             [cover_width + side_wall + angle_extra, wall_thickness],
             [cover_width + side_wall + angle_extra *2 , lip],
-            [cover_width + side_wall + angle_extra *2 + side_wall , lip],
-            [cover_width + side_wall + angle_extra *2 + side_wall , 0],
+            [total_width, lip],
+            [total_width, 0],
         ]);
             for (rot=[0:30:360])
-                zrot(rot)
+                zrot(rot + 45)
                     translate([od/2, 0, 0])
                         cylinder(h=cover_width + side_wall*2 + angle_extra*2, d=1, $fn=16);
         }
@@ -77,8 +78,8 @@ module cover() {
                 cube([lip * 5, 1, 100]);
 
         // hole for lights
-        #up(cover_width/2)
-            left(od/2 + cover_thickness)
+        #up(total_width/2)
+            left(od/2 + cover_thickness+ 1)
                 yrot(90)
                     cylinder(d1=light_hole, d2=light_hole*3, h=cover_thickness * 2 + 0.5);
     }
