@@ -40,10 +40,10 @@ module mockup() {
 }
 
 module cover() {
-    cover_thickness = 1.5;
+    cover_thickness = 1;
     cover_width = width + wall_thickness * 2;
     side_wall = 1;
-    lip = 5;
+    lip = 4;
     // shrink the diameter so it's springy when in its default state
     od = od - 5;
 
@@ -84,10 +84,14 @@ module cover() {
                 cube([lip * 5, 1, 100]);
 
         // hole for lights
-        #up(total_width/2)
+        up(total_width/2)
             left(od/2 + cover_thickness + 1)
+                minkowski() {
                 yrot(90)
                     cylinder(d1=light_hole, d2=light_hole*3, h=cover_thickness * 2 + 0.5);
+                    
+                    cube([0.1, 0.1, width - 9], center=true);
+                }
     }
 }
 
